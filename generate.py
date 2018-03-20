@@ -2,6 +2,7 @@
 import os
 import numpy as np
 from matplotlib.image import imread
+from skimage.measure import block_reduce
 
 
 def process_image(file_path):
@@ -31,30 +32,43 @@ def generate(args):
         images_2 = []
         images_3 = []
 
+        if args.downsample:
+            patch = (args.patch, args.patch)
+
         for d in digits_1:
             digit_file = np.random.choice(files[d])
             digit_path = os.path.join(dirs[d], digit_file)
             digit_image = process_image(digit_path)
+            if args.downsample:
+                digit_image = block_reduce(digit_image, patch, func=np.max)
             images_1.append(digit_image)
 
         plus_file = np.random.choice(files[10])
         plus_path = os.path.join(dirs[10], plus_file)
         plus_image = process_image(plus_path)
+        if args.downsample:
+            plus_image = block_reduce(plus_image, patch, func=np.max)
 
         for d in digits_2:
             digit_file = np.random.choice(files[d])
             digit_path = os.path.join(dirs[d], digit_file)
             digit_image = process_image(digit_path)
+            if args.downsample:
+                digit_image = block_reduce(digit_image, patch, func=np.max)
             images_2.append(digit_image)
 
         equal_file = np.random.choice(files[11])
         equal_path = os.path.join(dirs[11], equal_file)
         equal_image = process_image(equal_path)
+        if args.downsample:
+            equal_image = block_reduce(equal_image, patch, func=np.max)
 
         for d in digits_3:
             digit_file = np.random.choice(files[d])
             digit_path = os.path.join(dirs[d], digit_file)
             digit_image = process_image(digit_path)
+            if args.downsample:
+                digit_image = block_reduce(digit_image, patch, func=np.max)
             images_3.append(digit_image)
 
         images = np.array(
@@ -86,6 +100,8 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--n_samples', type=int, default=10000)
     parser.add_argument('-o', '--output-file', default='formulas.pickle')
     parser.add_argument('-m', '--max_value', type=int, default=999)
+    parser.add_argument('-d', '--downsample', action='store_true')
+    parser.add_argument('-p', '--patch', type=int, default=5)
     args = parser.parse_args()
 
     main(args)
